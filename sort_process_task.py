@@ -8,13 +8,13 @@ shared_list = manager.list(random.sample(range(0,100),10))
 lock = manager.Lock()
 
 def main():
-    results = list()
-    for i in range(10):
+    results = dict()
+    for index in range(10):
         q = multiprocessing.Queue()
         process = multiprocessing.Process(target=job,args=(lock,q))
         process.start()
-        results.append(q.get())
-    for index,result in enumerate(results):
+        results[index] = q.get()
+    for index,result in results.items():
         result_list,exe_time = result
         print(str(index) + " : " + str(result_list) +"   " + str(exe_time))
 
@@ -23,11 +23,10 @@ def job(
     q:'q'
     ):
     start = time.time()
-    lock.acquire()
-    sort_list()
-    copied_list = copy_list()
-    generate_element()
-    lock.release()
+    with lock:
+        sort_list()
+        copied_list = copy_list()
+        generate_element()
     end = time.time()
     q.put((copied_list,end-start))
 
